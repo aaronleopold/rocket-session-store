@@ -11,33 +11,22 @@ pub mod redis;
 
 use std::time::Duration;
 
-use rand::{
-	rngs::OsRng,
-	Rng,
-};
+use rand::{rngs::OsRng, Rng};
 use rocket::{
-	fairing::{
-		Fairing,
-		Info,
-		Kind,
-	},
-	http::{
-		Cookie,
-		SameSite,
-		Status,
-	},
-	request::{
-		FromRequest,
-		Outcome,
-	},
+	fairing::{Fairing, Info, Kind},
+	http::{Cookie, SameSite, Status},
+	request::{FromRequest, Outcome},
 	response::Responder,
 	tokio::sync::Mutex,
-	Build,
-	Request,
-	Response,
-	Rocket,
-	State,
+	Build, Request, Response, Rocket, State,
 };
+
+#[cfg(feature = "okapi")]
+use rocket_okapi::{
+	gen::OpenApiGenerator,
+	request::{OpenApiFromRequest, RequestHeaderInput},
+};
+
 use thiserror::Error;
 
 fn new_id(length: usize) -> String {
@@ -144,6 +133,21 @@ where
 
 		let session = Session { store, token };
 		Outcome::Success(session)
+	}
+}
+
+#[cfg(feature = "okapi")]
+impl<'r, 's, T> OpenApiFromRequest<'r> for Session<'s, T>
+where
+	T: Send + Sync + 'static + Clone,
+	'r: 's,
+{
+	fn from_request_input(
+		_gen: &mut OpenApiGenerator,
+		_name: String,
+		_required: bool,
+	) -> rocket_okapi::Result<RequestHeaderInput> {
+		Ok(RequestHeaderInput::None)
 	}
 }
 

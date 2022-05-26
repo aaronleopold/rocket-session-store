@@ -12,9 +12,16 @@ keywords = ["rocket", "session", "cookies", "authentication"]
 categories = ["asynchronous", "authentication", "database", "web-programming::http-server"]
 
 [dependencies]
-rocket =  "0.5.0-rc.1"
+rocket =  "0.5.0-rc.2"
 redis = { version = "0.21.5", optional = true }
 serde = "1.0.134"
 serde_json = "1.0.76"
 rand = "0.8.4"
 thiserror = "1.0.30"
+
+rocket_okapi = { git = "https://github.com/ThouCheese/okapi", branch = "feat/rocket0.5-rc.2", optional = true }
+schemars = { version = "0.8.10", optional = true }
+
+[features]
+okapi = ["rocket_okapi", "schemars"]
+redis = ["dep:redis"]
